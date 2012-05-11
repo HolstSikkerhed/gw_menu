@@ -25,16 +25,11 @@ do
                 set -- $line
                 case "$1" in
 		uptime)	uptime;;
-		finger) finger;;
-		who)	finger;;
-		w)	finger;;
+		finger|who|w) finger;;
                 help)   grep -v "^#" $HELP
 			fmt $HOSTS
 			printf "\n";;
-                exit)   exit;;
-                quit)   exit;;
-                bye)    exit;;
-                logout) exit;;
+                exit|quit|bye|logout)   exit;;
                 # If the user input is not a command, it may be a hostname to
                 # connect to. We do strict checking against the list of known
                 # hostnames, and if there's a match we connect to the system.
