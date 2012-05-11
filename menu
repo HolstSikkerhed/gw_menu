@@ -4,9 +4,9 @@
 # passed to the command line. 
 umask 077
 
-HELP=menu.help
-HOSTS=menu.hosts
-GREETING=menu.greeting
+HELP=/etc/menu/menu.help
+HOSTS=/etc/menu/menu.hosts
+GREETING=/etc/menu/menu.greeting
 
 
 trap "" 2
