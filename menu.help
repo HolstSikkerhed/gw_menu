@@ -1,0 +1,15 @@
+# $Id: menu.help,v 1.4 2004/05/20 12:17:33 holsta Exp $
+#
+# gateway help listing.
+Type a legal command or hostname at the prompt.
+
+Available commands:
+
+	help 		-- this menu
+	uptime 		-- display system uptime and load averages
+	who, w, finger  -- display information about connected users
+	exit 		-- disconnect from the system (aliases: bye,
+			   logout, quit)
+
+Available hostnames:
+

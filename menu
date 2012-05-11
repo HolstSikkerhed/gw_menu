@@ -1,0 +1,58 @@
+#!/bin/sh
+# $Id: menu,v 1.5 2004/05/20 12:15:57 holsta Exp $
+#
+# Menu wrapper for gateway machines. Ctrl-C is ignored and user input is never
+# passed to the command line. 
+umask 077
+
+HELP=menu.help
+HOSTS=menu.hosts
+GREETING=menu.greeting
+
+
+trap "" 2
+
+grep -v "^#" $GREETING
+
+while true
+do
+        echo "gateway> \c"
+        if read line
+        then
+                case "$line" in
+                "")     continue;;
+                esac
+
+                set -- $line
+                case "$1" in
+		uptime)	uptime;;
+		finger) finger;;
+		who)	finger;;
+		w)	finger;;
+                help)   grep -v "^#" $HELP
+			fmt $HOSTS
+			printf "\n";;
+                exit)   exit;;
+                quit)   exit;;
+                bye)    exit;;
+                logout) exit;;
+                # If the user input is not a command, it may be a hostname to
+                # connect to. We do strict checking against the list of known
+                # hostnames, and if there's a match we connect to the system.
+		# Output from grep command, not user input, is passed to the
+		# command line. 
+                *)     	if match=`grep "^$1$" $HOSTS` ; then
+                                ssh $match
+				unset $match
+                        else
+                                # User input was not listed in the host file.
+                                echo "Unknown command or host: $line."
+                                echo "Enter 'help' for help."
+                        fi
+                esac
+        else
+                break
+        fi
+done
+exit
+
