@@ -6,11 +6,11 @@ Allows untrusted users to run a few commands without being able to
 specify arguments, and it allows users to connect to hostnames
 specified in the menu.hosts file.
 
-	1. Install 'menu' to where your other shells are.
+	1. Install 'gw_menu' to where your other shells are.
 	2. Add the full path to the system /etc/shells file
-	3. Copy the HELP, HOSTS and GREETING files to /etc/menu
+	3. Copy the HELP, HOSTS and GREETING files to /etc/gw_menu
 	4. Tweak HELP, HOSTS and GREETING to fit your environment.
-	5. Add users with their shell set to 'menu'
+	5. Add users with their shell set to 'gw_menu'
 
 Simply add the short hostname to HOSTS, and use the system-wide ssh_config
 to specify full hostnames, if needed. An example usage session follows:
