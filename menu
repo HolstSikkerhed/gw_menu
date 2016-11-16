@@ -4,49 +4,74 @@
 # passed to the command line. 
 umask 077
 
-HELP=/etc/menu/menu.help
-HOSTS=/etc/menu/menu.hosts
-GREETING=/etc/menu/menu.greeting
-
+HELP=/etc/gw_menu/help
+HOSTS=/etc/gw_menu/hosts
+USERHOSTS=/etc/gw_menu/hosts.$USER
+GREETING=/etc/gw_menu/greeting
+USERIP=`echo $SSH_CLIENT | awk '{ print $1 }'`
 
 trap "" 2
 
-grep -v "^#" $GREETING
+if [ -f $GREETING ]; then
+	grep -v "^#" $GREETING
+fi
+
+if [ ! -f $USERHOSTS ]; then
+	echo Sorry, your account is not authorized to connect at this time.
+	echo Please ask as indicated above to have your access reinstated.
+	logger -i -t gw_menu $USERHOSTS does not exist: $USER login from $USERIP rejected.
+	exit 1
+fi
+
+if [ ! -f $HOSTS ]; then
+	echo Sorry, logins are not allowed at this time.
+	logger -i -t gw_menu $HOSTS does not exist: $USER login from $USERIP rejected.
+	exit 1
+fi
+
+	logger -i -t gw_menu $USER logged in from $USERIP
 
 while true
 do
-        echo "gateway> \c"
-        if read line
-        then
-                case "$line" in
-                "")     continue;;
-                esac
+	echo "gateway> \c"
+	if read line
+	then
+		case "$line" in
+		"")     continue;;
+		esac
 
-                set -- $line
-                case "$1" in
+		set -- $line
+		case "$1" in
 		uptime)	uptime;;
+		time) TZ=UTC date
+			TZ=NZ date
+			date;;
 		finger|who|w) finger;;
-                help)   grep -v "^#" $HELP
-			fmt $HOSTS
-			printf "\n";;
-                exit|quit|bye|logout)   exit;;
-                # If the user input is not a command, it may be a hostname to
-                # connect to. We do strict checking against the list of known
-                # hostnames, and if there's a match we connect to the system.
-		# Output from grep command, not user input, is passed to the
-		# command line. 
-                *)     	if match=`grep "^$1$" $HOSTS` ; then
-                                ssh $match
-				unset $match
-                        else
-                                # User input was not listed in the host file.
-                                echo "Unknown command or host: $line."
-                                echo "Enter 'help' for help."
-                        fi
-                esac
-        else
-                break
-        fi
+		help)   grep -v "^#" $HELP
+						while read h comments; do grep "$h" $HOSTS < $USERHOSTS; done;
+						printf "\n";;
+		exit|quit|bye|logout)   exit;;
+		motd)   grep -v "^#" $GREETING;;
+		# If the user input is not a command, it may be a hostname to
+		# connect to. We do strict checking against the list of known
+		# hostnames, and if there's a match we connect to the system.
+				# Output from grep command, not user input, is passed to the
+				# command line. 
+		*)	if match=`grep "^$1$" $HOSTS` ; then
+				logger -i -t gw_menu $USER connected to $match
+				ssh $match
+				logger -i -t gw_menu $USER disconnected from $match
+								unset $match
+			else
+				# User input was not listed in the host file.
+				echo "Unknown command or host: $line."
+				echo "Enter 'help' for help."
+				logger -i -t gw_menu "$USER Unknown command or host: $line"
+			fi
+		esac
+	else
+		break
+	fi
 done
 exit
 
